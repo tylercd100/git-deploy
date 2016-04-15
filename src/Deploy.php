@@ -4,15 +4,20 @@ namespace Tylercd100\GitDeploy;
 
 use Exception;
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class Deploy {
+class Deploy implements LoggerAwareInterface{
+
+    use LoggerAwareTrait;
 
     /**
-     * A Monolog Logger
+     * A LoggerInterface such as the Monolog Logger
      * 
-     * @var Logger
+     * @var LoggerInterface
      */
-    protected $log;
+    protected $logger;
 
     /**
      * The name of the branch to pull from.
@@ -38,23 +43,23 @@ class Deploy {
 
     /**
      * @param string      $directory The directory where your website and git repository are located
-     * @param string      $branch    The branch to pull
-     * @param string      $remote    The remote to use
-     * @param Logger|null $log       The Monolog Logger instance to use
+     * @param string               $branch The branch to pull
+     * @param string               $remote The remote to use
+     * @param LoggerInterface|null $logger The LoggerInterface instance to use
      */
-    public function __construct($directory, $branch = 'master', $remote = 'origin', Logger $log = null)
+    public function __construct($directory, $branch = 'master', $remote = 'origin', LoggerInterface $logger = null)
     {
         // Determine the directory path
         $this->directory = realpath($directory).DIRECTORY_SEPARATOR;
 
-        // Logger
-        if(!$log instanceof Logger)
+        // LoggerInterface
+        if(!$logger instanceof LoggerInterface)
         {
-            $log = new Logger('Deployment');
+            $logger = new Logger('Deployment');
         }
-        $this->log = $log;
+        $this->setLogger($logger);
 
-        $this->log->info('Attempting deployment...');
+        $this->logger->info('Attempting deployment...');
     }
 
     /**
@@ -66,25 +71,25 @@ class Deploy {
         {
             // Make sure we're in the right directory
             exec('cd '.$this->directory, $output);
-            $this->log->info('Changing working directory... '.implode(' ', $output));
+            $this->logger->info('Changing working directory... '.implode(' ', $output));
 
             // Discard any changes to tracked files since our last deploy
             exec('git reset --hard HEAD', $output);
-            $this->log->info('Reseting repository... '.implode(' ', $output));
+            $this->logger->info('Reseting repository... '.implode(' ', $output));
 
             // Update the local repository
             exec('git pull '.$this->remote.' '.$this->branch, $output);
-            $this->log->info('Pulling in changes... '.implode(' ', $output));
+            $this->logger->info('Pulling in changes... '.implode(' ', $output));
 
             // Secure the .git directory
             exec('chmod -R og-rx .git');
-            $this->log->info('Securing .git directory... ');
+            $this->logger->info('Securing .git directory... ');
 
-            $this->log->info('Deployment successful.');
+            $this->logger->info('Deployment successful.');
         }
         catch (Exception $e)
         {
-            $this->log->error($e);
+            $this->logger->error($e);
         }
     }
 }
