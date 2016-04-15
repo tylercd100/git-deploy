@@ -1,4 +1,4 @@
-# PHP Server Status
+# Git Deploy
 [![Latest Version](https://img.shields.io/github/release/tylercd100/git-deploy.svg?style=flat-square)](https://github.com/tylercd100/git-deploy/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://travis-ci.org/tylercd100/git-deploy.svg?branch=master)](https://travis-ci.org/tylercd100/git-deploy)
