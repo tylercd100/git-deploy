@@ -58,8 +58,6 @@ class Deploy implements LoggerAwareInterface{
             $logger = new Logger('Deployment');
         }
         $this->setLogger($logger);
-
-        $this->logger->info('Attempting deployment...');
     }
 
     /**
@@ -67,6 +65,8 @@ class Deploy implements LoggerAwareInterface{
      */
     public function execute()
     {
+        $this->logger->info('Attempting deployment...');
+        
         try
         {
             // Make sure we're in the right directory
