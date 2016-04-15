@@ -9,5 +9,6 @@ class DeployTest extends TestCase
     public function testItCreatesInstanceSuccessfully()
     {
         $obj = new Deploy(__DIR__);
+        $this->assertInstanceOf(Deploy::class,$obj);
     }
 }
