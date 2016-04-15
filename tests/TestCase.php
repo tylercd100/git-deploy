@@ -1,6 +1,6 @@
 <?php
 
-namespace Tylercd100\ServerStatus\Tests;
+namespace Tylercd100\GitDeploy\Tests;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {

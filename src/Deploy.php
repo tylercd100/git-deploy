@@ -2,44 +2,31 @@
 
 namespace Tylercd100\GitDeploy;
 
+use Exception;
+use Monolog\Logger;
+
 class Deploy {
 
     /**
-     * A callback function to call after the deploy has finished.
+     * A Monolog Logger
      * 
-     * @var callback
+     * @var Logger
      */
-    public $post_deploy;
-
-    /**
-     * The name of the file that will be used for logging deployments. Set to 
-     * FALSE to disable logging.
-     * 
-     * @var string
-     */
-    private $_log = 'deployments.log';
-
-    /**
-     * The timestamp format used for logging.
-     * 
-     * @link    http://www.php.net/manual/en/function.date.php
-     * @var     string
-     */
-    private $_date_format = 'Y-m-d H:i:sP';
+    protected $log;
 
     /**
      * The name of the branch to pull from.
      * 
      * @var string
      */
-    private $_branch = 'master';
+    protected $branch = 'master';
 
     /**
      * The name of the remote to pull from.
      * 
      * @var string
      */
-    private $_remote = 'origin';
+    protected $remote = 'origin';
 
     /**
      * The directory where your website and git repository are located, can be 
@@ -47,58 +34,27 @@ class Deploy {
      * 
      * @var string
      */
-    private $_directory;
+    protected $directory;
 
     /**
-     * Sets up defaults.
-     * 
-     * @param  string  $directory  Directory where your website is located
-     * @param  array   $data       Information about the deployment
+     * @param string      $directory The directory where your website and git repository are located
+     * @param string      $branch    The branch to pull
+     * @param string      $remote    The remote to use
+     * @param Logger|null $log       The Monolog Logger instance to use
      */
-    public function __construct($directory, $options = array())
+    public function __construct($directory, $branch = 'master', $remote = 'origin', Logger $log = null)
     {
         // Determine the directory path
-        $this->_directory = realpath($directory).DIRECTORY_SEPARATOR;
+        $this->directory = realpath($directory).DIRECTORY_SEPARATOR;
 
-        $available_options = array('log', 'date_format', 'branch', 'remote');
-
-        foreach ($options as $option => $value)
+        // Logger
+        if(!$log instanceof Logger)
         {
-            if (in_array($option, $available_options))
-            {
-                $this->{'_'.$option} = $value;
-            }
+            $log = new Logger('Deployment');
         }
+        $this->log = $log;
 
-        $this->log('Attempting deployment...');
-    }
-
-    /**
-     * Writes a message to the log file.
-     * 
-     * @param  string  $message  The message to write
-     * @param  string  $type     The type of log message (e.g. INFO, DEBUG, ERROR, etc.)
-     */
-    public function log($message, $type = 'INFO')
-    {
-        if ($this->_log)
-        {
-            // Set the name of the log file
-            $filename = $this->_log;
-
-            if ( ! file_exists($filename))
-            {
-                // Create the log file
-                file_put_contents($filename, '');
-
-                // Allow anyone to write to log files
-                chmod($filename, 0666);
-            }
-
-            // Write the message into the log file
-            // Format: time --- type: message
-            file_put_contents($filename, date($this->_date_format).' --- '.$type.': '.$message.PHP_EOL, FILE_APPEND);
-        }
+        $this->log->info('Attempting deployment...');
     }
 
     /**
@@ -109,31 +65,26 @@ class Deploy {
         try
         {
             // Make sure we're in the right directory
-            exec('cd '.$this->_directory, $output);
-            $this->log('Changing working directory... '.implode(' ', $output));
+            exec('cd '.$this->directory, $output);
+            $this->log->info('Changing working directory... '.implode(' ', $output));
 
             // Discard any changes to tracked files since our last deploy
             exec('git reset --hard HEAD', $output);
-            $this->log('Reseting repository... '.implode(' ', $output));
+            $this->log->info('Reseting repository... '.implode(' ', $output));
 
             // Update the local repository
-            exec('git pull '.$this->_remote.' '.$this->_branch, $output);
-            $this->log('Pulling in changes... '.implode(' ', $output));
+            exec('git pull '.$this->remote.' '.$this->branch, $output);
+            $this->log->info('Pulling in changes... '.implode(' ', $output));
 
             // Secure the .git directory
             exec('chmod -R og-rx .git');
-            $this->log('Securing .git directory... ');
+            $this->log->info('Securing .git directory... ');
 
-            if (is_callable($this->post_deploy))
-            {
-                call_user_func($this->post_deploy, $this->_data);
-            }
-
-            $this->log('Deployment successful.');
+            $this->log->info('Deployment successful.');
         }
         catch (Exception $e)
         {
-            $this->log($e, 'ERROR');
+            $this->log->error($e);
         }
     }
 }
