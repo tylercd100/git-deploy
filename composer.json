@@ -1,0 +1,34 @@
+{
+    "name": "tylercd100/git-deploy",
+    "description": "",
+    "keywords": [
+        "tylercd100"
+    ],
+    "homepage": "https://github.com/tylercd100/git-deploy",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tyler Arbon",
+            "email": "tylercd100@gmail.com"
+        }
+    ],
+    "autoload":{
+        "psr-4":{
+            "Tylercd100\\GitDeploy\\":"src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tylercd100\\GitDeploy\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^5.5.9|^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8|^5.0"
+    },
+    "suggest": {
+    }
+}
