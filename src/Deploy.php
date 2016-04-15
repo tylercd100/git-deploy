@@ -13,13 +13,6 @@ class Deploy implements LoggerAwareInterface{
     use LoggerAwareTrait;
 
     /**
-     * A LoggerInterface such as the Monolog Logger
-     * 
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * The name of the branch to pull from.
      * 
      * @var string
