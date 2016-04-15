@@ -20,14 +20,6 @@ composer require tylercd100/git-deploy
 
 ```php
 // This is just an example
-$deploy = new Deploy('/var/www/foobar.com');
-
-$deploy->post_deploy = function() use ($deploy) {
-    // hit the wp-admin page to update any db changes
-    exec('curl http://www.foobar.com/wp-admin/upgrade.php?step=upgrade_db');
-    $deploy->log('Updating wordpress database... ');
-};
-
+$deploy = new Deploy('/var/www/foobar.com','branch','origin');
 $deploy->execute();
-
 ```
